@@ -1,0 +1,588 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Простий переглядач логів</title>
+  <style>
+    body {
+      background-color: #1f2937;
+      color: #f3f4f6;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+      padding: 20px;
+      margin: 0;
+    }
+    
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    
+    .header {
+      background-color: #374151;
+      padding: 20px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+    }
+    
+    .header h1 {
+      margin-top: 0;
+      margin-bottom: 16px;
+    }
+    
+    .file-upload {
+      margin-bottom: 16px;
+    }
+    
+    .file-input {
+      display: block;
+      width: 100%;
+      padding: 8px;
+      background-color: #4b5563;
+      color: #f3f4f6;
+      border: none;
+      border-radius: 4px;
+      margin-top: 8px;
+    }
+    
+    .search-container {
+      margin-top: 16px;
+      padding-top: 16px;
+      border-top: 1px solid #4b5563;
+    }
+    
+    .search-input {
+      width: 100%;
+      padding: 8px;
+      background-color: #4b5563;
+      color: #f3f4f6;
+      border: none;
+      border-radius: 4px;
+      margin-top: 8px;
+    }
+    
+    .search-stats {
+      margin-top: 8px;
+      font-size: 14px;
+      color: #9ca3af;
+    }
+    
+    .clear-button {
+      background-color: #4b5563;
+      color: #f3f4f6;
+      border: none;
+      padding: 6px 12px;
+      border-radius: 4px;
+      cursor: pointer;
+      margin-left: 8px;
+    }
+    
+    .clear-button:hover {
+      background-color: #6b7280;
+    }
+    
+    .loading {
+      text-align: center;
+      padding: 40px;
+    }
+    
+    .spinner {
+      border: 4px solid rgba(255, 255, 255, 0.3);
+      border-radius: 50%;
+      border-top: 4px solid #3b82f6;
+      width: 40px;
+      height: 40px;
+      animation: spin 1s linear infinite;
+      margin: 0 auto;
+    }
+    
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    
+    .logs-container {
+      margin-top: 20px;
+    }
+    
+    .log-item {
+      margin-bottom: 10px;
+      border-radius: 6px;
+      overflow: hidden;
+    }
+    
+    .log-header {
+      padding: 12px;
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+    }
+    
+    .log-message {
+      white-space: pre-wrap;
+      word-break: break-word;
+      font-family: monospace;
+      margin-right: 10px;
+      flex: 1;
+    }
+    
+    .log-type {
+      font-size: 12px;
+      padding: 3px 8px;
+      border-radius: 12px;
+      background-color: #4b5563;
+      color: #f3f4f6;
+      white-space: nowrap;
+    }
+    
+    .log-type-log {
+      background-color: #4b5563;
+    }
+    
+    .log-type-warning {
+      background-color: #92400e;
+    }
+    
+    .log-type-error {
+      background-color: #b91c1c;
+    }
+    
+    .log-type-exception {
+      background-color: #7f1d1d;
+    }
+    
+    .log-body {
+      background-color: #1f2937;
+      border-top: 1px solid #4b5563;
+      padding: 12px;
+    }
+    
+    .stack-trace {
+      white-space: pre-wrap;
+      word-break: break-word;
+      font-family: monospace;
+      font-size: 12px;
+      color: #d1d5db;
+    }
+    
+    .copy-btn {
+      margin-top: 8px;
+      padding: 4px 8px;
+      background-color: #4b5563;
+      color: #f3f4f6;
+      border: none;
+      border-radius: 4px;
+      font-size: 12px;
+      cursor: pointer;
+    }
+    
+    .copy-btn:hover {
+      background-color: #6b7280;
+    }
+    
+    .message-controls {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 8px;
+    }
+    
+    .toggle-button {
+      background: none;
+      border: none;
+      color: #9ca3af;
+      font-size: 12px;
+      cursor: pointer;
+      padding: 0;
+    }
+    
+    .toggle-button:hover {
+      color: #f3f4f6;
+    }
+    
+    .empty-message {
+      background-color: #374151;
+      padding: 24px;
+      text-align: center;
+      border-radius: 6px;
+    }
+    
+    .highlight {
+      background-color: #fbbf24;
+      color: #1f2937;
+      padding: 0 2px;
+      border-radius: 2px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>Переглядач логів</h1>
+      
+      <div class="file-upload">
+        <label for="log-file">Завантажити файл логів</label>
+        <input type="file" id="log-file" class="file-input" accept=".txt,.log">
+      </div>
+      
+      <div id="search-box" class="search-container" style="display: none;">
+        <label for="search-input">Пошук за текстом</label>
+        <div style="display: flex;">
+          <input type="text" id="search-input" class="search-input" placeholder="Введіть текст для пошуку...">
+          <button id="clear-search" class="clear-button" style="display: none;">Очистити</button>
+        </div>
+        <div id="search-stats" class="search-stats"></div>
+      </div>
+    </div>
+    
+    <div id="loading" class="loading" style="display: none;">
+      <div class="spinner"></div>
+    </div>
+    
+    <div id="logs-container" class="logs-container">
+      <div class="empty-message">
+        Завантажте файл логів, щоб побачити їх тут.
+      </div>
+    </div>
+  </div>
+  
+  <script>
+    // Глобальні змінні
+    let allLogs = [];
+    let filteredLogs = [];
+    let searchText = '';
+    
+    // Елементи DOM
+    const fileInput = document.getElementById('log-file');
+    const searchBox = document.getElementById('search-box');
+    const searchInput = document.getElementById('search-input');
+    const clearSearchBtn = document.getElementById('clear-search');
+    const searchStats = document.getElementById('search-stats');
+    const loadingIndicator = document.getElementById('loading');
+    const logsContainer = document.getElementById('logs-container');
+    
+    // Обробник завантаження файлу
+    fileInput.addEventListener('change', function(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+      
+      showLoading();
+      
+      const reader = new FileReader();
+      
+      reader.onload = function(e) {
+        const content = e.target.result;
+        
+        // Пропустити системну інформацію
+        let lines = content.split('\n');
+        
+        // Знайти початок логів
+        const consoleLogStartIdx = lines.findIndex(line => 
+          line.includes('Console Log (Oldest First)') || 
+          line.includes('[Log]') || 
+          line.includes('[Warning]') || 
+          line.includes('[Error]') || 
+          line.includes('[Exception]')
+        );
+        
+        if (consoleLogStartIdx !== -1) {
+          lines = lines.slice(consoleLogStartIdx);
+        }
+        
+        // Розбір логів
+        allLogs = parseLogsFromLines(lines);
+        filteredLogs = [...allLogs];
+        
+        // Показати поле пошуку
+        if (allLogs.length > 0) {
+          searchBox.style.display = 'block';
+          searchStats.textContent = `Показано ${allLogs.length} з ${allLogs.length} логів`;
+        } else {
+          searchBox.style.display = 'none';
+        }
+        
+        // Відобразити логи
+        renderLogs();
+        hideLoading();
+      };
+      
+      reader.onerror = function() {
+        alert('Помилка читання файлу');
+        hideLoading();
+      };
+      
+      reader.readAsText(file);
+    });
+    
+    // Обробник пошуку
+    searchInput.addEventListener('input', function(event) {
+      searchText = event.target.value.trim();
+      clearSearchBtn.style.display = searchText ? 'block' : 'none';
+      
+      if (!searchText) {
+        filteredLogs = [...allLogs];
+        searchStats.textContent = `Показано ${allLogs.length} з ${allLogs.length} логів`;
+      } else {
+        const lowercaseSearch = searchText.toLowerCase();
+        filteredLogs = allLogs.filter(log => 
+          log.message.toLowerCase().includes(lowercaseSearch) || 
+          log.stackTrace.toLowerCase().includes(lowercaseSearch)
+        );
+        searchStats.textContent = `Показано ${filteredLogs.length} з ${allLogs.length} логів за запитом "${searchText}"`;
+      }
+      
+      renderLogs();
+    });
+    
+    // Очистити пошук
+    clearSearchBtn.addEventListener('click', function() {
+      searchInput.value = '';
+      searchText = '';
+      filteredLogs = [...allLogs];
+      clearSearchBtn.style.display = 'none';
+      searchStats.textContent = `Показано ${allLogs.length} з ${allLogs.length} логів`;
+      renderLogs();
+    });
+    
+    // Функція розбору логів з рядків
+    function parseLogsFromLines(lines) {
+      const logs = [];
+      let currentLog = null;
+      let stackTrace = [];
+      
+      for (let i = 0; i < lines.length; i++) {
+        const line = lines[i];
+        
+        // Перевірка на новий лог
+        if (line.match(/^\s*\[(?:Log|Warning|Error|Exception)\]/)) {
+          // Зберегти попередній лог
+          if (currentLog) {
+            currentLog.stackTrace = stackTrace.join('\n');
+            logs.push(currentLog);
+            stackTrace = [];
+          }
+          
+          // Обробка нового логу
+          const typeMatch = line.match(/^\s*\[(Log|Warning|Error|Exception)\]/);
+          const type = typeMatch ? typeMatch[1] : 'Log';
+          
+          // Витягування повідомлення
+          const message = line.replace(/^\s*\[(?:Log|Warning|Error|Exception)\]\s*/, '');
+          
+          currentLog = {
+            type: type,
+            message: message,
+            stackTrace: '',
+            expanded: false
+          };
+        } 
+        // Обробка стеку викликів
+        else if (line.match(/^\s*-\s+\./) || line.match(/^\s+\w/)) {
+          if (currentLog) {
+            stackTrace.push(line);
+          }
+        } 
+        // Продовження повідомлення
+        else if (line.trim() && currentLog) {
+          currentLog.message += '\n' + line;
+        }
+      }
+      
+      // Додати останній лог
+      if (currentLog) {
+        currentLog.stackTrace = stackTrace.join('\n');
+        logs.push(currentLog);
+      }
+      
+      return logs;
+    }
+    
+    // Відображення логів
+    function renderLogs() {
+      if (filteredLogs.length === 0) {
+        let message = allLogs.length === 0 
+          ? 'Завантажте файл логів, щоб побачити їх тут.' 
+          : 'Немає логів, що відповідають вашому пошуковому запиту.';
+        
+        logsContainer.innerHTML = `
+          <div class="empty-message">
+            <p>${message}</p>
+            ${searchText ? '<button id="clear-search-empty" class="clear-button">Очистити пошук</button>' : ''}
+          </div>
+        `;
+        
+        if (searchText) {
+          document.getElementById('clear-search-empty').addEventListener('click', function() {
+            searchInput.value = '';
+            searchText = '';
+            filteredLogs = [...allLogs];
+            clearSearchBtn.style.display = 'none';
+            searchStats.textContent = `Показано ${allLogs.length} з ${allLogs.length} логів`;
+            renderLogs();
+          });
+        }
+        
+        return;
+      }
+      
+      let html = '';
+      
+      filteredLogs.forEach((log, index) => {
+        const logTypeClass = `log-type-${log.type.toLowerCase()}`;
+        const logBgColor = getLogTypeBackgroundColor(log.type);
+        const logBorderColor = getLogTypeBorderColor(log.type);
+        
+        html += `
+          <div class="log-item">
+            <div class="log-header" style="background-color: ${logBgColor}; border-left: 4px solid ${logBorderColor};" data-index="${index}">
+              <div class="log-message">${processColorTagsAndHighlight(log.message)}</div>
+              <span class="log-type ${logTypeClass}">${log.type}</span>
+            </div>
+            
+            <div class="message-controls">
+              <button class="toggle-button" data-index="${index}">${log.expanded ? 'Згорнути' : 'Розгорнути'} стек викликів</button>
+              <button class="copy-btn" data-index="${index}" data-type="message">Копіювати лог</button>
+            </div>
+            
+            ${log.expanded && log.stackTrace ? `
+              <div class="log-body">
+                <pre class="stack-trace">${highlightSearchText(log.stackTrace)}</pre>
+                <button class="copy-btn" data-index="${index}" data-type="full">Копіювати з стеком</button>
+              </div>
+            ` : ''}
+          </div>
+        `;
+      });
+      
+      logsContainer.innerHTML = html;
+      
+      // Додати обробники подій
+      document.querySelectorAll('.log-header').forEach(header => {
+        header.addEventListener('click', function() {
+          const index = parseInt(this.getAttribute('data-index'));
+          toggleLogExpanded(index);
+        });
+      });
+      
+      document.querySelectorAll('.toggle-button').forEach(button => {
+        button.addEventListener('click', function(e) {
+          e.stopPropagation();
+          const index = parseInt(this.getAttribute('data-index'));
+          toggleLogExpanded(index);
+        });
+      });
+      
+      document.querySelectorAll('.copy-btn').forEach(button => {
+        button.addEventListener('click', function(e) {
+          e.stopPropagation();
+          const index = parseInt(this.getAttribute('data-index'));
+          const type = this.getAttribute('data-type');
+          copyLog(index, type);
+        });
+      });
+    }
+    
+    // Переключення розгортання логу
+    function toggleLogExpanded(index) {
+      filteredLogs[index].expanded = !filteredLogs[index].expanded;
+      renderLogs();
+    }
+    
+    // Копіювання логу без кольорових тегів
+    function copyLog(index, type) {
+      const log = filteredLogs[index];
+      
+      // Видалити кольорові теги з повідомлення
+      const cleanMessage = removeColorTags(log.message);
+      
+      // Сформувати текст для копіювання
+      const text = type === 'full' ? `${cleanMessage}\n${log.stackTrace}` : cleanMessage;
+      
+      navigator.clipboard.writeText(text)
+        .then(() => alert('Лог скопійовано до буфера обміну!'))
+        .catch(err => {
+          console.error('Помилка копіювання: ', err);
+          alert('Не вдалося скопіювати лог. Можливо, відсутні дозволи для буфера обміну.');
+        });
+    }
+    
+    // Видалення кольорових тегів з тексту
+    function removeColorTags(text) {
+      if (!text) return '';
+      
+      // Видаляємо всі колірні теги, залишаючи тільки їх вміст
+      let result = text;
+      const colorTagRegex = /<color=#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3,8})>(.*?)<\/color>/g;
+      
+      // Продовжуємо заміну, доки не знайдемо всі вкладені теги
+      let previousResult;
+      do {
+        previousResult = result;
+        result = result.replace(colorTagRegex, '$2');
+      } while (result !== previousResult);
+      
+      return result;
+    }
+    
+    // Обробка кольорових тегів з підсвічуванням пошуку
+    function processColorTagsAndHighlight(text) {
+      if (!text) return '';
+      
+      // Заміна кольорових тегів
+      let processedText = text.replace(/<color=#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3,8})>(.*?)<\/color>/g, function(match, color, content) {
+        // Рекурсивна обробка вкладених тегів
+        const processedContent = processColorTagsAndHighlight(content);
+        return `<span style="color: #${color}">${processedContent}</span>`;
+      });
+      
+      // Підсвічування пошуку
+      if (searchText) {
+        processedText = highlightSearchText(processedText);
+      }
+      
+      return processedText;
+    }
+    
+    // Підсвічування пошукового тексту
+    function highlightSearchText(text) {
+      if (!searchText || !text) return text;
+      
+      // Екранування спеціальних символів для використання в регулярному виразі
+      const escapedSearchText = searchText.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      const regex = new RegExp(`(${escapedSearchText})`, 'gi');
+      
+      return text.replace(regex, '<span class="highlight">$1</span>');
+    }
+    
+    // Стилі для різних типів логів
+    function getLogTypeBackgroundColor(type) {
+      switch (type) {
+        case 'Warning': return '#42361D';
+        case 'Error': return '#3D2A2C';
+        case 'Exception': return '#3E2A2A';
+        default: return '#374151';
+      }
+    }
+    
+    function getLogTypeBorderColor(type) {
+      switch (type) {
+        case 'Warning': return '#FFD700';
+        case 'Error': return '#DC3545';
+        case 'Exception': return '#FF0000';
+        default: return '#9CA3AF';
+      }
+    }
+    
+    // Показати індикатор завантаження
+    function showLoading() {
+      loadingIndicator.style.display = 'block';
+      logsContainer.innerHTML = '';
+    }
+    
+    // Сховати індикатор завантаження
+    function hideLoading() {
+      loadingIndicator.style.display = 'none';
+    }
+  </script>
+</body>
+</html>
