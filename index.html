@@ -1,10 +1,11 @@
 <!DOCTYPE html>
+
 <html lang="uk">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Простий переглядач логів</title>
-  <style>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Simple Log Viewer</title>
+<style>
     body {
       background-color: #1f2937;
       color: #f3f4f6;
@@ -216,38 +217,33 @@
   </style>
 </head>
 <body>
-  <div class="container">
-    <div class="header">
-      <h1>Переглядач логів</h1>
-      
-      <div class="file-upload">
-        <label for="log-file">Завантажити файл логів</label>
-        <input type="file" id="log-file" class="file-input" accept=".txt,.log">
+<div class="container">
+<div class="header">
+<h1>Log Viewer</h1><p style="margin-top: -12px; color: #9ca3af; font-size: 14px;">by Vadim Sych</p>
+<div class="file-upload">
+<label for="log-file">Upload log file</label>
+<input accept=".txt,.log" class="file-input" id="log-file" type="file"/>
+</div>
+<div class="search-container" id="search-box" style="display: none;">
+<label for="search-input">Search by text</label>
+<div style="display: flex;">
+<input class="search-input" id="search-input" placeholder="Enter text to search..." type="text"/>
+<button class="clear-button" id="clear-search" style="display: none;">Clear</button>
+</div>
+<div class="search-stats" id="search-stats"></div>
+</div>
+</div>
+<div class="loading" id="loading" style="display: none;">
+<div class="spinner"></div>
+</div>
+<div class="logs-container" id="logs-container">
+<div class="empty-message">
+        Upload a log file to view its contents here.
       </div>
-      
-      <div id="search-box" class="search-container" style="display: none;">
-        <label for="search-input">Пошук за текстом</label>
-        <div style="display: flex;">
-          <input type="text" id="search-input" class="search-input" placeholder="Введіть текст для пошуку...">
-          <button id="clear-search" class="clear-button" style="display: none;">Очистити</button>
-        </div>
-        <div id="search-stats" class="search-stats"></div>
-      </div>
-    </div>
-    
-    <div id="loading" class="loading" style="display: none;">
-      <div class="spinner"></div>
-    </div>
-    
-    <div id="logs-container" class="logs-container">
-      <div class="empty-message">
-        Завантажте файл логів, щоб побачити їх тут.
-      </div>
-    </div>
-  </div>
-  
-  <script>
-    // Глобальні змінні
+</div>
+</div>
+<script>
+    // Глобальні ofмінні
     let allLogs = [];
     let filteredLogs = [];
     let searchText = '';
@@ -261,7 +257,7 @@
     const loadingIndicator = document.getElementById('loading');
     const logsContainer = document.getElementById('logs-container');
     
-    // Обробник завантаження файлу
+    // Обробник ofавантаження файлу
     fileInput.addEventListener('change', function(event) {
       const file = event.target.files[0];
       if (!file) return;
@@ -276,7 +272,7 @@
         // Пропустити системну інформацію
         let lines = content.split('\n');
         
-        // Знайти початок логів
+        // Знайти початок logs
         const consoleLogStartIdx = lines.findIndex(line => 
           line.includes('Console Log (Oldest First)') || 
           line.includes('[Log]') || 
@@ -289,19 +285,19 @@
           lines = lines.slice(consoleLogStartIdx);
         }
         
-        // Розбір логів
+        // Роofбір logs
         allLogs = parseLogsFromLines(lines);
         filteredLogs = [...allLogs];
         
-        // Показати поле пошуку
+        // Покаofати поле пошуку
         if (allLogs.length > 0) {
           searchBox.style.display = 'block';
-          searchStats.textContent = `Показано ${allLogs.length} з ${allLogs.length} логів`;
+          searchStats.textContent = `Showing ${allLogs.length} of ${allLogs.length} logs`;
         } else {
           searchBox.style.display = 'none';
         }
         
-        // Відобразити логи
+        // Відобраofити логи
         renderLogs();
         hideLoading();
       };
@@ -321,30 +317,30 @@
       
       if (!searchText) {
         filteredLogs = [...allLogs];
-        searchStats.textContent = `Показано ${allLogs.length} з ${allLogs.length} логів`;
+        searchStats.textContent = `Showing ${allLogs.length} of ${allLogs.length} logs`;
       } else {
         const lowercaseSearch = searchText.toLowerCase();
         filteredLogs = allLogs.filter(log => 
           log.message.toLowerCase().includes(lowercaseSearch) || 
           log.stackTrace.toLowerCase().includes(lowercaseSearch)
         );
-        searchStats.textContent = `Показано ${filteredLogs.length} з ${allLogs.length} логів за запитом "${searchText}"`;
+        searchStats.textContent = `Showing ${filteredLogs.length} of ${allLogs.length} logs ofа ofапитом "${searchText}"`;
       }
       
       renderLogs();
     });
     
-    // Очистити пошук
+    // Clear пошук
     clearSearchBtn.addEventListener('click', function() {
       searchInput.value = '';
       searchText = '';
       filteredLogs = [...allLogs];
       clearSearchBtn.style.display = 'none';
-      searchStats.textContent = `Показано ${allLogs.length} з ${allLogs.length} логів`;
+      searchStats.textContent = `Showing ${allLogs.length} of ${allLogs.length} logs`;
       renderLogs();
     });
     
-    // Функція розбору логів з рядків
+    // Функція роofбору logs of рядків
     function parseLogsFromLines(lines) {
       const logs = [];
       let currentLog = null;
@@ -397,17 +393,17 @@
       return logs;
     }
     
-    // Відображення логів
+    // Відображення logs
     function renderLogs() {
       if (filteredLogs.length === 0) {
         let message = allLogs.length === 0 
-          ? 'Завантажте файл логів, щоб побачити їх тут.' 
-          : 'Немає логів, що відповідають вашому пошуковому запиту.';
+          ? 'Upload a log file to view its contents here.' 
+          : 'No logs match your search query.';
         
         logsContainer.innerHTML = `
           <div class="empty-message">
             <p>${message}</p>
-            ${searchText ? '<button id="clear-search-empty" class="clear-button">Очистити пошук</button>' : ''}
+            ${searchText ? '<button id="clear-search-empty" class="clear-button">Clear пошук</button>' : ''}
           </div>
         `;
         
@@ -417,7 +413,7 @@
             searchText = '';
             filteredLogs = [...allLogs];
             clearSearchBtn.style.display = 'none';
-            searchStats.textContent = `Показано ${allLogs.length} з ${allLogs.length} логів`;
+            searchStats.textContent = `Showing ${allLogs.length} of ${allLogs.length} logs`;
             renderLogs();
           });
         }
@@ -440,14 +436,14 @@
             </div>
             
             <div class="message-controls">
-              <button class="toggle-button" data-index="${index}">${log.expanded ? 'Згорнути' : 'Розгорнути'} стек викликів</button>
-              <button class="copy-btn" data-index="${index}" data-type="message">Копіювати лог</button>
+              <button class="toggle-button" data-index="${index}">${log.expanded ? 'Згорнути' : 'Роofгорнути'} стек викликів</button>
+              <button class="copy-btn" data-index="${index}" data-type="message">Copy log</button>
             </div>
             
             ${log.expanded && log.stackTrace ? `
               <div class="log-body">
                 <pre class="stack-trace">${highlightSearchText(log.stackTrace)}</pre>
-                <button class="copy-btn" data-index="${index}" data-type="full">Копіювати з стеком</button>
+                <button class="copy-btn" data-index="${index}" data-type="full">Copy with stack</button>
               </div>
             ` : ''}
           </div>
@@ -482,39 +478,39 @@
       });
     }
     
-    // Переключення розгортання логу
+    // Переключення роofгортання логу
     function toggleLogExpanded(index) {
       filteredLogs[index].expanded = !filteredLogs[index].expanded;
       renderLogs();
     }
     
-    // Копіювання логу без кольорових тегів
+    // Копіювання логу беof кольорових тегів
     function copyLog(index, type) {
       const log = filteredLogs[index];
       
-      // Видалити кольорові теги з повідомлення
+      // Видалити кольорові теги of повідомлення
       const cleanMessage = removeColorTags(log.message);
       
       // Сформувати текст для копіювання
       const text = type === 'full' ? `${cleanMessage}\n${log.stackTrace}` : cleanMessage;
       
       navigator.clipboard.writeText(text)
-        .then(() => alert('Лог скопійовано до буфера обміну!'))
+        .then(() => alert('Log copied to clipboard!'))
         .catch(err => {
-          console.error('Помилка копіювання: ', err);
-          alert('Не вдалося скопіювати лог. Можливо, відсутні дозволи для буфера обміну.');
+          console.error('Copy error: ', err);
+          alert('Failed to copy log. Clipboard permission may be missing.');
         });
     }
     
-    // Видалення кольорових тегів з тексту
+    // Видалення кольорових тегів of тексту
     function removeColorTags(text) {
       if (!text) return '';
       
-      // Видаляємо всі колірні теги, залишаючи тільки їх вміст
+      // Видаляємо всі колірні теги, ofалишаючи тільки їх вміст
       let result = text;
       const colorTagRegex = /<color=#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3,8})>(.*?)<\/color>/g;
       
-      // Продовжуємо заміну, доки не знайдемо всі вкладені теги
+      // Продовжуємо ofаміну, доки не ofнайдемо всі вкладені теги
       let previousResult;
       do {
         previousResult = result;
@@ -524,7 +520,7 @@
       return result;
     }
     
-    // Обробка кольорових тегів з підсвічуванням пошуку
+    // Обробка кольорових тегів of підсвічуванням пошуку
     function processColorTagsAndHighlight(text) {
       if (!text) return '';
       
@@ -547,14 +543,14 @@
     function highlightSearchText(text) {
       if (!searchText || !text) return text;
       
-      // Екранування спеціальних символів для використання в регулярному виразі
+      // Екранування спеціальних символів для використання в регулярному вираofі
       const escapedSearchText = searchText.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
       const regex = new RegExp(`(${escapedSearchText})`, 'gi');
       
       return text.replace(regex, '<span class="highlight">$1</span>');
     }
     
-    // Стилі для різних типів логів
+    // Стилі для ріofних типів logs
     function getLogTypeBackgroundColor(type) {
       switch (type) {
         case 'Warning': return '#42361D';
@@ -573,13 +569,13 @@
       }
     }
     
-    // Показати індикатор завантаження
+    // Покаofати індикатор ofавантаження
     function showLoading() {
       loadingIndicator.style.display = 'block';
       logsContainer.innerHTML = '';
     }
     
-    // Сховати індикатор завантаження
+    // Сховати індикатор ofавантаження
     function hideLoading() {
       loadingIndicator.style.display = 'none';
     }
