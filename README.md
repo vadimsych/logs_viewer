@@ -1,7 +1,7 @@
 Simple Log Viewer
 A lightweight and intuitive web-based log viewer designed to help you analyze .log and .txt files with ease. Ideal for logs exported from Unity and similar platforms.
 
-<img width="1582" alt="Screenshot 2025-04-07 at 12 14 44" src="https://github.com/user-attachments/assets/20ac2625-46f6-469c-ad5b-9ddd15583ca9" />
+<img width="1276" alt="Screenshot 2025-04-07 at 12 27 05" src="https://github.com/user-attachments/assets/5e586655-1753-4c3a-9511-c58166533755" />
 
 🧩 Features
 Upload .log or .txt files
