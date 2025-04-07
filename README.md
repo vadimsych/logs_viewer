@@ -3,6 +3,7 @@ A lightweight and intuitive web-based log viewer designed to help you analyze .l
 
 <img width="1276" alt="Screenshot 2025-04-07 at 12 27 05" src="https://github.com/user-attachments/assets/5e586655-1753-4c3a-9511-c58166533755" />
 
+
 🧩 Features
 Upload .log or .txt files
 
