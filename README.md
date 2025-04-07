@@ -25,27 +25,6 @@ Drag and drop a .log or .txt file into the page, or use the upload input.
 
 Search, explore, and copy logs as needed.
 
-💡 Use Case
-This viewer is especially useful when working with:
-
-Unity Editor exported logs
-
-Debugging application crashes
-
-Reviewing long stack traces
-
-Searching for specific keywords in large logs
-
-📁 File Structure
-css
-Копіювати
-Редагувати
-📦 log-viewer/
- ┣ 📄 index.html     ← The main app (HTML, CSS, JS in one file)
- ┗ 📄 README.md       ← You’re reading it
-🛠️ Tech Stack
-Pure HTML, CSS, and JavaScript
-
 No dependencies or external libraries
 
 Dark theme and responsive layout
