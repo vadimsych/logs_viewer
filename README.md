@@ -1,0 +1,54 @@
+Simple Log Viewer
+A lightweight and intuitive web-based log viewer designed to help you analyze .log and .txt files with ease. Ideal for logs exported from Unity and similar platforms.
+
+<img width="1582" alt="Screenshot 2025-04-07 at 12 14 44" src="https://github.com/user-attachments/assets/20ac2625-46f6-469c-ad5b-9ddd15583ca9" />
+
+🧩 Features
+Upload .log or .txt files
+
+Automatically detects log types: Log, Warning, Error, and Exception
+
+Powerful text search with real-time highlighting
+
+Toggleable stack traces for detailed debugging
+
+Copy log messages (with or without stack traces)
+
+Supports <color=#xxxxxx> tags (like Unity logs)
+
+🚀 Getting Started
+Clone or download this repository.
+
+Open index.html in any modern web browser.
+
+Drag and drop a .log or .txt file into the page, or use the upload input.
+
+Search, explore, and copy logs as needed.
+
+💡 Use Case
+This viewer is especially useful when working with:
+
+Unity Editor exported logs
+
+Debugging application crashes
+
+Reviewing long stack traces
+
+Searching for specific keywords in large logs
+
+📁 File Structure
+css
+Копіювати
+Редагувати
+📦 log-viewer/
+ ┣ 📄 index.html     ← The main app (HTML, CSS, JS in one file)
+ ┗ 📄 README.md       ← You’re reading it
+🛠️ Tech Stack
+Pure HTML, CSS, and JavaScript
+
+No dependencies or external libraries
+
+Dark theme and responsive layout
+
+📃 License
+This project is open-source and available under the MIT License.
